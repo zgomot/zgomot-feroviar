@@ -8,14 +8,39 @@
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
   <style>
-    #map { height: 90vh; }
-    #controls {
-      padding: 10px;
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    #info {
       background: white;
+      padding: 10px;
+      font-size: 14px;
+    }
+
+    #controls {
+      background: white;
+      padding: 10px;
+      border-top: 1px solid #ccc;
+    }
+
+    #map {
+      height: 80vh;
     }
   </style>
 </head>
 <body>
+
+<div id="info">
+  <b>Informații:</b><br>
+  Harta afișează contururile nivelurilor de zgomot (Lden și Lnight).<br>
+  Zonele dintre contururi reprezintă intervale de zgomot.<br><br>
+
+  <b>Legendă:</b><br>
+  Lden – nivel zgomot zi-seară-noapte<br>
+  Lnight – nivel zgomot noapte
+</div>
 
 <div id="controls">
   <b>Selectează layer:</b>
@@ -30,37 +55,36 @@
 <script>
 var map = L.map('map').setView([45.7, 25], 6);
 
-// fundal
+// fundal OpenStreetMap
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   attribution: '© OpenStreetMap'
 }).addTo(map);
 
-// WMS URL bază
+// WMS URL
 var wmsUrl = "https://geonoise.mmap.ro/ows/services/org.3.3828093b-73dc-408e-b215-1e668f30da51_wms";
 
 // layere
 var lden = L.tileLayer.wms(wmsUrl, {
   layers: 'NoiseContours_majorRailwaysIncludingAgglomeration_Lden',
   format: 'image/png',
-  transparent: true
+  transparent: true,
+  version: '1.1.1'
 });
 
 var lnight = L.tileLayer.wms(wmsUrl, {
   layers: 'NoiseContours_majorRailwaysIncludingAgglomeration_Lnight',
   format: 'image/png',
-  transparent: true
+  transparent: true,
+  version: '1.1.1'
 });
 
-// layer default
+// layer implicit
 lden.addTo(map);
 
-// selector
+// selector layer
 document.getElementById("layerSelect").addEventListener("change", function() {
-  map.eachLayer(function(layer) {
-    if (layer !== map._layers[Object.keys(map._layers)[0]]) {
-      map.removeLayer(layer);
-    }
-  });
+  map.removeLayer(lden);
+  map.removeLayer(lnight);
 
   if (this.value === "lden") {
     lden.addTo(map);
